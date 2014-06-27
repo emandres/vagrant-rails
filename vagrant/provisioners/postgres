@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+psql_command() {
+  local SQL=$1
+  #execute a psql command as the postgres user, and check if there were any results from the query
+  su postgres -c "psql -tc \"$SQL\"" | grep -v ^$
+}
+
+#enable password auth for postgres
+PATTERN="(local\s+all\s+all\s+)peer"
+PG_HBA=/etc/postgresql/9.3/main/pg_hba.conf
+if grep -E "$PATTERN" $PG_HBA; then
+  echo "Configuring postgres to use password authentication"
+  sed -E -i "s/$PATTERN/\1md5/" $PG_HBA
+  service postgresql restart
+fi
+
+#create the database user
+if ! psql_command "SELECT rolname FROM pg_roles where rolname = '#{postgres_username}';" > /dev/null; then
+  echo "Creating database role"
+  psql_command "CREATE ROLE activity_tools WITH LOGIN CREATEDB PASSWORD '#{postgres_password}'"
+fi

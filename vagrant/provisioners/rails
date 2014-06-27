@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+echo "Installing rails dependencies"
+
+if ! which rbenv; then
+  PATH=$HOME/.rbenv/bin:$PATH
+  eval "$(rbenv init -)"
+fi
+
+cd /vagrant
+
+if ! which bundle; then
+  gem install bundler
+  rbenv rehash #make bundle available
+fi
+
+bundle install
+rbenv rehash #make rails available
+
+rake db:create db:migrate

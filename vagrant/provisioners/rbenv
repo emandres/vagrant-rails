@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+RBENV=~/.rbenv
+if ! [ -d $RBENV ]; then
+  echo "Install rbenv"
+  git clone https://github.com/sstephenson/rbenv $RBENV > /dev/null
+  echo "export PATH=$RBENV/bin:\$PATH" >> ~/.bashrc
+  echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+fi
+
+RUBY_BUILD=~/.rbenv/plugins/ruby-build
+if ! [ -d $RUBY_BUILD ]; then
+  echo "Install ruby-build"
+  git clone https://github.com/sstephenson/ruby-build.git $RUBY_BUILD > /dev/null
+  (cd $RUBY_BUILD && git checkout v20140524 -q)
+fi
+
+echo "Installing ruby 2.1.2"
+
+if ! grep "\.rbenv/bin"; then
+  PATH=$HOME/.rbenv/bin:$PATH
+fi
+
+rbenv install -s 2.1.2
+rbenv global 2.1.2
